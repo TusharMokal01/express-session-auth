@@ -1,86 +1,97 @@
-# Stateful Authentication
+# 🛡️ Stateful Authentication API
 
-## Overview
+A secure **Express.js** backend implementing **session-based authentication** with **role-based authorization**, powered by **PostgreSQL (Docker)** and **Drizzle ORM**.
 
-This application is built using Express and implements:
+---
 
-- User registration
-- User login & logout
-- Session-based authentication
-- Role-based authorization
-- Admin-only routes
-- PostgreSQL database (via Docker)
-- Drizzle ORM for database queries
+## 📌 Overview
+
+This application includes:
+
+* ✅ User registration
+* ✅ User login & logout
+* ✅ Session-based authentication
+* ✅ Role-based authorization
+* ✅ Admin-only routes
+* ✅ PostgreSQL database (Dockerized)
+* ✅ Drizzle ORM for database queries
+
+---
+
+## 🚀 Server Configuration
 
 The server runs on:
 
-```
-
+```js
 PORT = process.env.PORT ?? 8000
-
 ```
 
 ---
 
-# Database
+# 🗄️ Database Setup
 
-PostgreSQL is configured using Docker.
+The application uses **PostgreSQL** running in Docker.
 
-## Docker Service
+## 🐳 Docker Configuration
 
-- Image: `postgres:17.4`
-- Container Name: `postgres_db`
-- Port: `5432:5432`
-- Volume: `db_data:/var/lib/postgresql/data`
+* **Image:** `postgres:17.4`
+* **Container Name:** `postgres_db`
+* **Port Mapping:** `5432:5432`
+* **Volume:** `db_data:/var/lib/postgresql/data`
 
-## Volume
+### Volume Definition
 
-```
-
+```yaml
 db_data:
+```
 
-````
-
-Docker is used to spin up the PostgreSQL database.
+Docker is used to spin up and persist the PostgreSQL database.
 
 ---
 
-# Test Route
+# 🧪 Test Route
 
-## GET `/test-route`
+## `GET /test-route`
 
-**Response**
+### ✅ Response
+
 ```json
 {
   "Status": "OK",
   "Message": "All good app is up and running."
 }
-````
+```
 
 ---
 
-# Routes
+# 📂 API Routes
 
-## User Routes (`/user`)
+---
 
-### POST `/user/auth/register`
+## 👤 User Routes (`/user`)
 
-Middleware:
+---
+
+### 🔹 `POST /user/auth/register`
+
+**Middleware:**
 
 * `authenticateUser`
 
-Controller:
+**Controller:**
 
 * `registerUser`
 
-**Body**
+#### 📥 Request Body
 
-* `firstName` (required)
-* `lastName`
-* `email` (required)
-* `password` (required)
+| Field     | Required |
+| --------- | -------- |
+| firstName | ✅        |
+| lastName  | ❌        |
+| email     | ✅        |
+| password  | ✅        |
 
-**Responses**
+#### 📤 Responses
 
 * `400` → Missing Credentials
 * `409` → User already exists
@@ -89,96 +100,106 @@ Controller:
 
 ---
 
-### POST `/user/auth/login`
+### 🔹 `POST /user/auth/login`
 
-Middleware:
+**Middleware:**
 
 * `authenticateUser`
 
-Controller:
+**Controller:**
 
 * `userLogin`
 
-**Body**
+#### 📥 Request Body
 
-* `email` (required)
-* `password` (required)
+| Field    | Required |
+| -------- | -------- |
+| email    | ✅        |
+| password | ✅        |
 
-**Responses**
+#### 📤 Responses
 
 * `400` → Missing Credentials
 * `404` → User not found
 * `401` → Invalid password
-* `200` → Session created (returns Session Id)
+* `200` → Session created (returns Session ID)
 * `500` → Internal Server Error
 
 ---
 
-### DELETE `/user/auth/logout`
+### 🔹 `DELETE /user/auth/logout`
 
-Middleware:
+**Middleware:**
 
 * `authenticateUser`
 
-Controller:
+**Controller:**
 
 * `userLogout`
 
-**Headers**
+#### 📎 Headers
 
-* `session-id`
+```
+session-id: <UUID>
+```
 
-**Responses**
+#### 📤 Responses
 
-* `403` → Invalid Session-Id
+* `403` → Invalid Session-ID
 * `200` → User logged out successfully
 
 ---
 
-### GET `/user/auth/me`
+### 🔹 `GET /user/auth/me`
 
-Middleware:
+**Middleware:**
 
 * `authenticateUser`
 
-Controller:
+**Controller:**
 
 * `getMyDetails`
 
-**Headers**
+#### 📎 Headers
 
-* `session-id`
+```
+session-id: <UUID>
+```
 
-**Responses**
+#### 📤 Responses
 
-* `403` → Invalid Session-Id
+* `403` → Invalid Session-ID
 * `200` → Returns authenticated user data
 
 ---
 
-## Authenticated Route
+## 🔐 Authenticated Route
 
-### GET `/profile`
+---
 
-Middleware:
+### 🔹 `GET /profile`
+
+**Middleware:**
 
 * `authenticateUser`
 * `isAuthenticated`
 
-Controller:
+**Controller:**
 
 * `getUserProfile`
 
-**Body**
+#### 📥 Request Body
 
-* `userId` (required)
+| Field  | Required |
+| ------ | -------- |
+| userId | ✅        |
 
-**Behavior**
+#### ⚙️ Behavior
 
-* Returns selected user profile fields.
-* If the profile belongs to an `ADMIN`, access is forbidden.
+* Returns selected user profile fields
+* Access to `ADMIN` profiles is forbidden
 
-**Responses**
+#### 📤 Responses
 
 * `400` → Missing Credentials
 * `403` → Access Forbidden
@@ -186,7 +207,7 @@ Controller:
 
 ---
 
-## Admin Routes (`/admin`)
+## 👑 Admin Routes (`/admin`)
 
 All admin routes require:
 
@@ -196,32 +217,34 @@ All admin routes require:
 
 ---
 
-### GET `/admin/users`
+### 🔹 `GET /admin/users`
 
-Controller:
+**Controller:**
 
 * `getAllUsers`
 
-**Response**
+#### 📤 Response
 
 * `200` → Returns all users (firstName, lastName, email, role)
 
 ---
 
-### POST `/admin/create-user`
+### 🔹 `POST /admin/create-user`
 
-Controller:
+**Controller:**
 
 * `createUser`
 
-**Body**
+#### 📥 Request Body
 
-* `firstName` (required)
-* `lastName`
-* `email` (required)
-* `password` (required)
+| Field     | Required |
+| --------- | -------- |
+| firstName | ✅        |
+| lastName  | ❌        |
+| email     | ✅        |
+| password  | ✅        |
 
-**Responses**
+#### 📤 Responses
 
 * `400` → Missing Credentials
 * `409` → User already exists
@@ -229,118 +252,143 @@ Controller:
 
 ---
 
-# Middlewares
+# 🧩 Middlewares
 
-## `authenticateUser`
+---
 
-* Reads `session-id` from request headers.
-* Validates UUID format.
-* Fetches session and user information from the database.
-* Attaches user data to `req.user`.
+## 🔹 `authenticateUser`
 
-**Responses**
+* Reads `session-id` from request headers
+* Validates UUID format
+* Fetches session + user from database
+* Attaches user data to `req.user`
+
+### Responses
 
 * `403` → Invalid Session-ID
 * `500` → Internal Server Error
 
-If no `session-id` is provided, the request continues without authentication.
+> If no `session-id` is provided, the request continues without authentication.
 
 ---
 
-## `isAuthenticated`
+## 🔹 `isAuthenticated`
 
-* Checks if `req.user` exists.
+* Ensures `req.user` exists
 
-**Response**
+**Response:**
 
 * `403` → User Not Logged In
 
 ---
 
-## `isAuthorized(role)`
+## 🔹 `isAuthorized(role)`
 
-* Compares `req.user.role` with the required role.
+* Compares `req.user.role` with required role
 
-**Response**
+**Response:**
 
 * `401` → User Not Authorized
 
 ---
 
-# Controllers
+# 🎮 Controllers
 
-## User Controller
+---
+
+## 👤 User Controller
+
+Functions:
 
 * `registerUser`
 * `userLogin`
 * `userLogout`
 * `getMyDetails`
 
-Handles:
+### Responsibilities
 
-* Password hashing using `crypto` (HMAC SHA256 with salt)
+* Password hashing using `crypto` (HMAC SHA256 + salt)
 * Session creation on login
 * Session deletion on logout
 * Returning authenticated user data
 
 ---
 
-## Admin Controller
+## 👑 Admin Controller
+
+Functions:
 
 * `getAllUsers`
 * `createUser`
 
-Handles:
+### Responsibilities
 
 * Fetching all users
 * Creating users with hashed passwords
 
 ---
 
-## Authenticated Controller
+## 🔐 Authenticated Controller
+
+Function:
 
 * `getUserProfile`
 
-Handles:
+### Responsibilities
 
 * Fetching user profile by `userId`
 * Blocking access to admin profiles
 
 ---
 
-# Database Models
-
-## `userTable` (users)
-
-Columns:
-
-* `id` (UUID, primary key)
-* `firstName`
-* `lastName`
-* `email` (unique)
-* `role` (`ADMIN`, `MODERATOR`, `USER`) — default `USER`
-* `password`
-* `salt`
-* `createAt`
-* `updatedAt`
+# 🗃️ Database Models
 
 ---
 
-## `userSessions` (user sessions)
+## 📄 `userTable` (users)
 
-Columns:
-
-* `id` (UUID, primary key)
-* `userId` (references `users.id`)
-* `startTime`
-* `endTime`
+| Column    | Type / Notes                                   |
+| --------- | ---------------------------------------------- |
+| id        | UUID (PK)                                      |
+| firstName | String                                         |
+| lastName  | String                                         |
+| email     | Unique                                         |
+| role      | `ADMIN`, `MODERATOR`, `USER` (default: `USER`) |
+| password  | Hashed                                         |
+| salt      | String                                         |
+| createAt  | Timestamp                                      |
+| updatedAt | Timestamp                                      |
 
 ---
 
-# Session Handling
+## 📄 `userSessions`
 
-* A session is created on successful login.
-* The client must send `session-id` in request headers.
-* The session is validated on each protected request.
-* The session is deleted on logout.
+| Column    | Type / Notes  |
+| --------- | ------------- |
+| id        | UUID (PK)     |
+| userId    | FK → users.id |
+| startTime | Timestamp     |
+| endTime   | Timestamp     |
 
+---
+
+# 🔄 Session Handling
+
+* A session is created on successful login
+* The client must send `session-id` in request headers
+* Session is validated on each protected request
+* Session is deleted on logout
+
+---
+
+# 📌 Summary
+
+This project demonstrates a clean and scalable implementation of:
+
+* Stateful authentication
+* Role-based access control (RBAC)
+* Middleware-driven security
+* Dockerized PostgreSQL setup
+* Structured controller architecture
+
+---
